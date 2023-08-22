@@ -193,12 +193,13 @@ $(document).ready( function(){
     testing("Key Down Pressed==");
 
     handleEscapeKey(event);
-    handleShiftKey(event);
+    // handleShiftKey(event);
     handleNavigationKeys(event);
-    handleToggleTaskCompletion(event);
+    // handleToggleTaskCompletion(event);
     handleEnterKey(event);
-    handleNewTaskKey(event);
+    // handleNewTaskKey(event);
     handleImportantKey(event);
+    handleUrgentKey(event);
   }
 
   function handleEscapeKey(event) {
@@ -273,19 +274,37 @@ $(document).ready( function(){
   }
 
   function handleImportantKey(event) {
-    testing(event)
     if (event.keyCode>=49 && event.keyCode<=51 && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       // updateFocusedTask()
-      console.log('custom menu==>', $('.cu-dt-controls__item_cf')[0])
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
-        console.log('first', document.getElementsByClassName('cu-dropdown__menu_left'))
-        console.log('second', document.getElementsByClassName('cu-dropdown__menu_left')[0])
         document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[0].click()
         setTimeout(() => {
           document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
           setTimeout(() => {
             let num = Number(event.key)
+            document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+            document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+            setTimeout(() => {
+              document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+            }, 200);
+          }, 200);
+        }, 200);
+      }, 200);
+    }
+  }
+
+  function handleUrgentKey(event) {
+    if ((event.key == 'v' || event.key == 'n' || event.key == 's') && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      // updateFocusedTask()
+      document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
+      setTimeout(() => {
+        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[2].click()
+        setTimeout(() => {
+          document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
+          setTimeout(() => {
+            let num = event.key == 'v'? 1: (event.key == 's'? 2: 3)
+            console.log('correct num', num)
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             setTimeout(() => {
