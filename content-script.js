@@ -22,11 +22,11 @@ const style = document.createElement("style");
 const turbo_style = `
 
 .active-list-item {
-	background-color: #3e224a !important;
+  background-color: #e9e9e9 !important;
 }
 
 .active-list-item .cu-task-row-main__link-text-inner {
-  color: #fff !important;
+
 }
 
 .dark-theme .cu-dt-controls {
@@ -219,6 +219,14 @@ $(document).ready( function(){
     if (event.code === "KeyK" || event.code === "KeyJ") {
       navigateTasks(event.code === "KeyK");
     }
+    if (event.code === "KeyL") {
+      const currentRow = cuTaskRows[currentFocused];
+      if (toggleMarker && !shiftPressed) {
+        toggleMarker.click();
+      }
+      toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
+      toggleMarker.click();
+    }
   }
 
   function navigateTasks(up) {
@@ -238,7 +246,7 @@ $(document).ready( function(){
   function updateFocusedTask() {
     console.log("Current Focused:", cuTaskRows[currentFocused]);
 
-    const currentRow = cuTaskRows[currentFocused];
+    
 
     cuTaskRows.forEach((el) => el.classList.remove("active-list-item"));
 
@@ -249,11 +257,11 @@ $(document).ready( function(){
 
     $(".cu-dt-controls").hide();
 
-    if (toggleMarker && !shiftPressed) {
-      toggleMarker.click();
-    }
-    toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
-    toggleMarker.click();
+    // if (toggleMarker && !shiftPressed) {
+    //   toggleMarker.click();
+    // }
+    // toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
+    // toggleMarker.click();
   }
 
   function handleToggleTaskCompletion(event) {
@@ -278,7 +286,7 @@ $(document).ready( function(){
       // updateFocusedTask()
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
-        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[0].click()
+        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[2].click()
         setTimeout(() => {
           document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
           setTimeout(() => {
@@ -295,15 +303,15 @@ $(document).ready( function(){
   }
 
   function handleUrgentKey(event) {
-    if ((event.key == 'v' || event.key == 'n' || event.key == 's') && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+    if ((event.key == '7' || event.key == '8' || event.key == '9') && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       // updateFocusedTask()
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
-        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[2].click()
+        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[1].click()
         setTimeout(() => {
           document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
           setTimeout(() => {
-            let num = event.key == 'v'? 1: (event.key == 's'? 2: 3)
+            let num = event.key == '7'? 1: (event.key == '8'? 2: 3)
             console.log('correct num', num)
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
@@ -365,112 +373,3 @@ function testing(logString) {
     console.log(logString);
   }
 }
-
-
-
-
-
-
-// function onKeyDown(event) {
-
-
-//   testing("Key Down Event");
-
-//   // Escape key
-
-//   if (event.code === "Escape") {
-//     toggleMarker = null;
-//   }
-
-//   if (event.code == "Shift") {
-//     testing("Shift is held");
-//     shiftPressed = true;
-//   }
-
-
-//   // Key K & J (Up & Down)
-//   if (event.code === "KeyK" || event.code === "KeyJ") {
-
-//     refreshTasks();
-
-//       if (event.code === "KeyK") {
-//           currentFocused = currentFocused === 0 ? cuTaskRows.length - 1 : currentFocused - 1;
-//       } else {
-//           currentFocused = currentFocused === cuTaskRows.length - 1 ? 0 : currentFocused + 1;
-//       }
-
-
-
-//       console.log("Current Focused:", cuTaskRows[currentFocused]);
-
-
-//       const currentRow = cuTaskRows[currentFocused];
-
-//       // find .cu-task-row-toggle__marker
-
-//       // Remove active class from all rows
-//       cuTaskRows.forEach((el) => el.classList.remove("active-list-item"));
-
-//       // Add active class to current row
-//       cuTaskRows[currentFocused].classList.add("active-list-item");
-
-//       // Scroll to current row
-//       getSelectedTask().focus()
-//       getSelectedTask().scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-//       $(".cu-dt-controls").hide();
-
-//       if (toggleMarker && !shiftPressed) {
-//         toggleMarker.click();
-//       }
-//       toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
-//       toggleMarker.click();
-
-//   // Key X for Toggle Task Completion
-
-//   if (event.code === "KeyX") {
-//       if (cuTaskRows[currentFocused]) {
-//           const cuTaskRowStatus = cuTaskRows[currentFocused].querySelector(".cu-task-row-status__done-btn");
-//           cuTaskRowStatus.click();
-//       }
-//   }
-
-//   if (event.key == "Enter" && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) {
-//     //time out for 500ms
-//     setTimeout(function() {
-//       refreshTaskRows();
-//     }, 500);
-//   }
-
-
-//   if (event.key === "n" && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
-
-//     testing("Key N Pressed");
-
-//     if(cuTaskRows[currentFocused] != null && cuTaskRows[currentFocused] != undefined) {
-//         event.preventDefault();
-//         event.stopPropagation();
-//         const $selectedTask = $(getSelectedTask());
-
-//         // // check if it's a subtask -- if it's a subtask, then go to parent
-//         // if ($selectedTask.hasClass("cu-task-row--subtask")) {
-//         // $selectedTask.trigger("mouseenter");
-
-//         const level = $selectedTask.data("level");
-//         if (level > 1) {
-//           const mainTaskDiv = $selectedTask.closest(`.cu-task-row[data-level=${level - 1}]`);
-//           const createSubtaskButton = mainTaskDiv.find('.cu-subtasks-by-status-popup__count-add-btn');
-//           $(createSubtaskButton).click();
-
-//         }
-
-//         else {
-//           const taskListDiv = $selectedTask.parents(".cu-task-list");
-//           let newTaskButton = taskListDiv.find("cu-task-list-footer").find("button.cu-task-list-footer__add");
-//           testing("New Task Button");
-//           testing(newTaskButton);
-//           $(newTaskButton).click();
-//         }
-//       }
-//     }
-// }
