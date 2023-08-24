@@ -9,8 +9,12 @@
     "48": "logo.png",
     "128": "logo.png"
   },
+  "action": {
+    "default_popup": "popup.html"
+  },
   "permissions": [
-      "activeTab"
+      "activeTab",
+      "storage"
   ],
   "content_scripts": [
       {
