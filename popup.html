@@ -14,8 +14,8 @@
     <img src="logo.png" alt="logo" />
     <span>Clickup Plugin</span>
     <div class="btn-group btn-toggle" style="display: flex;"> 
-      <button class="btn btn-default btn-custom">ON</button>
-      <button class="btn btn-primary active btn-custom">OFF</button>
+      <button id="btn-on" class="btn btn-primary btn-custom active">ON</button>
+      <button id="btn-off" class="btn btn-default btn-custom">OFF</button>
     </div>
   </header>
   <main class="wrapper">
@@ -37,13 +37,16 @@
       <section class="tab-pane fade active in" id="pills-profile" role="tabpanel">
         <div class="main-step">
           <h5>Set Hotkey for Move up/down</h5>
-          <label for="move_up">Move up</label>
-          <input type="text" name="move_up" class="form-control" placeholder="Enter your hotkey">
           <label for="move_down">Move down</label>
-          <input type="text" name="move_down" class="form-control" placeholder="Enter your hotkey">
+          <input id="move_down" type="text" name="move_down" class="form-control" placeholder="Enter your hotkey" value="j" maxlength="1">
+          <label for="move_up">Move up</label>
+          <input id="move_up" type="text" name="move_up" class="form-control" placeholder="Enter your hotkey" value="k" maxlength="1">
+          <label for="select_task">Select Task</label>
+          <input id="select_task" type="text" name="select_task" class="form-control" placeholder="Enter your hotkey" value="l" maxlength="1">
+          <p id="move_error" style="color: red; display: none">*Please put key for all input</p>
           <div class="button-group">
-            <button type="submit" class="btn btn-dark" id="ads_save">Save</button>
-            <button type="reset" class="btn btn-dark" id="ads_reset">Reset</button>
+            <button type="submit" class="btn btn-dark" id="btn_move_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_move_reset">Reset</button>
           </div>
         </div>
       </section>
@@ -51,14 +54,15 @@
         <div class="main-step" id="ads_kdp_signin">
           <h5>Set Hotkey for Important</h5>
           <label for="must_do">Must do</label>
-          <input type="text" name="must_do" class="form-control" placeholder="Enter your hotkey">
+          <input type="text" id="must_do" class="form-control" placeholder="Enter your hotkey" value="1" maxlength="1">
           <label for="should_do">Should do</label>
-          <input type="text" name="should_do" class="form-control" placeholder="Enter your hotkey">
+          <input type="text" id="should_do" class="form-control" placeholder="Enter your hotkey" value="2" maxlength="1">
           <label for="want_do">Want do</label>
-          <input type="text" name="want_do" class="form-control" placeholder="Enter your hotkey">
+          <input type="text" id="want_do" class="form-control" placeholder="Enter your hotkey" value="3" maxlength="1">
+          <p id="important_error" style="color: red; display: none">*Please put key for all input</p>
           <div class="button-group">
-            <button type="submit" class="btn btn-dark" id="ads_save">Save</button>
-            <button type="reset" class="btn btn-dark" id="ads_reset">Reset</button>
+            <button type="submit" class="btn btn-dark" id="btn_important_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_important_reset">Reset</button>
           </div>
         </div>
       </section>
@@ -66,14 +70,15 @@
         <div class="main-step">
           <h5>Set Hotkey for Urgent</h5>
           <label for="urgent_very">Very</label>
-          <input type="text" name="urgent_very" class="form-control" placeholder="Enter your hotkey">
+          <input type="text" id="urgent_very" class="form-control" placeholder="Enter your hotkey" value="7" maxlength="1">
           <label for="urgent_semi">Semi</label>
-          <input type="text" name="urgent_semi" class="form-control" placeholder="Enter your hotkey">
+          <input type="text" id="urgent_semi" class="form-control" placeholder="Enter your hotkey" value="8" maxlength="1">
           <label for="urgent_not">Not</label>
-          <input type="text" name="urgent_not" class="form-control" placeholder="Enter your hotkey">
+          <input type="text" id="urgent_not" class="form-control" placeholder="Enter your hotkey" value="9" maxlength="1">
+          <p id="urgent_error" style="color: red; display: none">*Please put key for all input</p>
           <div class="button-group">
-            <button type="submit" class="btn btn-dark" id="ads_save">Save</button>
-            <button type="reset" class="btn btn-dark" id="ads_reset">Reset</button>
+            <button type="submit" class="btn btn-dark" id="btn_urgent_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_urgent_reset">Reset</button>
           </div>
         </div>
       </section>

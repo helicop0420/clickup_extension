@@ -30,6 +30,14 @@ button.btn-dark {
     background-color:  #e2e2e2 !important;
 }
 
+#btn-on {
+    background-color: green !important;
+}
+
+#btn-off {
+    background-color: red !important;
+}
+
 header {
     padding: 8px 12px;
     display: flex;

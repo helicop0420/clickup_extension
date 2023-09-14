@@ -1,12 +1,27 @@
 const clickUpTurboDebugMode = true;
-
+const messageConstants = {
+  SET_USING: 'set_using',
+  SET_MOVE: 'set_move',
+  SET_IMPORTANT: 'set_important',
+  SET_URGENT: 'set_urgent',
+  INIT: 'init'
+}
 
 var cuTaskRows = [];
 let currentFocused = 0;
 let toggleMarker;
 let shiftPressed = false;
 
-
+var isUsePlugin = true;
+var moveDownkey = 'j';
+var moveUpKey = 'k';
+var selectTask = 'l';
+var setImportantMust = '1';
+var setImportantShould = '2';
+var setImportantWant = '3';
+var setUrgentVery = '7';
+var setUrgentSemi = '8';
+var setUrgentNot = '9';
 
 function getSelectedTask() {
   return cuTaskRows[currentFocused];
@@ -87,6 +102,9 @@ $(document).ready( function(){
   timeout = setTimeout(waitingForDOM, 3000);
 
 
+  /**
+  * Wait all functions until DOM is loaded
+  */
 
   function waitingForDOM() {
 
@@ -160,12 +178,13 @@ $(document).ready( function(){
     refreshAll();
   }
 
+  /**
+  * Refresh all events
+  */
 
   function refreshAll() {
     refreshTasks()
     document.removeEventListener("keydown", onKeyDown);
-    document.removeEventListener("keyup", onKeyUp);
-    document.addEventListener("keyup", onKeyUp);
     document.addEventListener("keydown", onKeyDown);
     cuTaskRows[currentFocused].classList.add("active-list-item");
   }
@@ -177,30 +196,24 @@ $(document).ready( function(){
     });
   }
 
-
-
-
-  function onKeyUp(event) {
-    if (event.code == "Shift") {
-      testing("Shift Released");
-      shiftPressed = false;
-    }
-  }
-
-
+  /**
+  * Handle all key events
+  * @param {keypress event} event
+  */
 
   function onKeyDown(event) {
     testing("Key Down Pressed==");
-
+    if(!isUsePlugin) return;
     handleEscapeKey(event);
-    // handleShiftKey(event);
     handleNavigationKeys(event);
-    // handleToggleTaskCompletion(event);
-    handleEnterKey(event);
-    // handleNewTaskKey(event);
     handleImportantKey(event);
     handleUrgentKey(event);
   }
+
+  /**
+  * Unselect task
+  * @param {keypress event} event
+  */
 
   function handleEscapeKey(event) {
     if (event.code === "Escape") {
@@ -208,18 +221,16 @@ $(document).ready( function(){
     }
   }
 
-  function handleShiftKey(event) {
-    if (event.code == "Shift") {
-      testing("Shift is held");
-      shiftPressed = true;
-    }
-  }
+  /**
+  * Handle key events for move up/down/select
+  * @param {keypress event} event
+  */
 
   function handleNavigationKeys(event) {
-    if (event.code === "KeyK" || event.code === "KeyJ") {
-      navigateTasks(event.code === "KeyK");
+    if (event.key === moveDownkey || event.key === moveUpKey) {
+      navigateTasks(event.key === moveUpKey);
     }
-    if (event.code === "KeyL") {
+    if (event.key === selectTask) {
       const currentRow = cuTaskRows[currentFocused];
       if (toggleMarker && !shiftPressed) {
         toggleMarker.click();
@@ -228,6 +239,10 @@ $(document).ready( function(){
       toggleMarker.click();
     }
   }
+
+  /**
+  * Update state of focused task from move up/down
+  */
 
   function navigateTasks(up) {
     refreshTasks();
@@ -243,11 +258,12 @@ $(document).ready( function(){
     updateFocusedTask();
   }
 
+  /**
+  * Update state of focused task
+  */
+
   function updateFocusedTask() {
     console.log("Current Focused:", cuTaskRows[currentFocused]);
-
-    
-
     cuTaskRows.forEach((el) => el.classList.remove("active-list-item"));
 
     cuTaskRows[currentFocused].classList.add("active-list-item");
@@ -256,41 +272,39 @@ $(document).ready( function(){
     getSelectedTask().scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     $(".cu-dt-controls").hide();
-
-    // if (toggleMarker && !shiftPressed) {
-    //   toggleMarker.click();
-    // }
-    // toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
-    // toggleMarker.click();
   }
 
-  function handleToggleTaskCompletion(event) {
-    if (event.code === "KeyX") {
-      if (cuTaskRows[currentFocused]) {
-        const cuTaskRowStatus = cuTaskRows[currentFocused].querySelector(".cu-task-row-status__done-btn");
-        cuTaskRowStatus.click();
+  /**
+  * Get index from option name
+  * @param {HTML NODE} node
+  * @param {String} field
+  */
+
+  function getIdxFromCustomName(node, field) {
+    for(let i = 0; i < node.children.length; i ++) {
+      if(node.children[i].children[1].innerHTML.toLowerCase().indexOf(field)>-1) {
+        return i;
       }
     }
   }
 
-  function handleEnterKey(event) {
-    if (event.key == "Enter" && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) {
-      setTimeout(function() {
-        refreshTaskRows();
-      }, 500);
-    }
-  }
+  /**
+  * Handle key events for important option
+  * @param {keypress event} event
+  */
 
   function handleImportantKey(event) {
-    if (event.keyCode>=49 && event.keyCode<=51 && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
-      // updateFocusedTask()
+    if ((event.key == setImportantMust || event.key == setImportantShould || event.key == setImportantWant) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
-        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[2].click()
+        let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
+        let order = getIdxFromCustomName(columnList, 'important')
+        columnList.children[order].click()
+
         setTimeout(() => {
           document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
           setTimeout(() => {
-            let num = Number(event.key)
+            let num = event.key == setImportantMust? 1 : (event.key == setImportantShould? 2: 3)
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             setTimeout(() => {
@@ -301,18 +315,24 @@ $(document).ready( function(){
       }, 200);
     }
   }
+
+  /**
+  * Handle key events for urgent option
+  * @param {keypress event} event
+  */
 
   function handleUrgentKey(event) {
-    if ((event.key == '7' || event.key == '8' || event.key == '9') && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
-      // updateFocusedTask()
+    if ((event.key == setUrgentVery || event.key == setUrgentSemi || event.key == setUrgentNot) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
-        document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0].children[1].click()
+        let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
+        let order = getIdxFromCustomName(columnList, 'urgent')
+        columnList.children[order].click()
+
         setTimeout(() => {
           document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
           setTimeout(() => {
-            let num = event.key == '7'? 1: (event.key == '8'? 2: 3)
-            console.log('correct num', num)
+            let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: 3)
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
             setTimeout(() => {
@@ -324,52 +344,85 @@ $(document).ready( function(){
     }
   }
 
-  function handleNewTaskKey(event) {
-    if (event.key === "n" && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
-
-      testing("Key N Pressed");
-
-      if(cuTaskRows[currentFocused] != null && cuTaskRows[currentFocused] != undefined) {
-        event.preventDefault();
-        event.stopPropagation();
-        createNewTask();
-      }
-    }
-  }
-
-  function createNewTask() {
-    const $selectedTask = $(getSelectedTask());
-    const level = $selectedTask.data("level");
-
-    if (level > 1) {
-      createSubtask($selectedTask, level);
-    } else {
-      createMainTask($selectedTask);
-    }
-  }
-
-  function createSubtask($selectedTask, level) {
-    const mainTaskDiv = $selectedTask.closest(`.cu-task-row[data-level=${level - 1}]`);
-    const createSubtaskButton = mainTaskDiv.find('.cu-subtasks-by-status-popup__count-add-btn');
-    $(createSubtaskButton).click();
-  }
-
-  function createMainTask($selectedTask) {
-    const taskListDiv = $selectedTask.parents(".cu-task-list");
-    let newTaskButton = taskListDiv.find("cu-task-list-footer").find("button.cu-task-list-footer__add");
-    testing("New Task Button");
-    testing(newTaskButton);
-    $(newTaskButton).click();
-  }
-
-}); // /jquery
-
-
-
-// Helpers
+});
 
 function testing(logString) {
   if (clickUpTurboDebugMode) {
     console.log(logString);
   }
 }
+
+const logger = {
+  log: (...params) => {
+    console.log(...params);
+  },
+  error: (...params) => {
+    console.error(...params);
+  },
+  info: (...params) => {
+    console.info(...params);
+  }
+}
+
+/**
+* Add listener from Popup
+*/
+
+!(() => {
+  isUsePlugin = localStorage.getItem('clickup-useplugin')? true : false;
+  moveDownkey = 'j';
+  moveUpKey = 'k';
+  selectTask = 'l';
+  setImportantMust = '1';
+  setImportantShould = '2';
+  setImportantWant = '3';
+  setUrgentVery = '7';
+  setUrgentSemi = '8';
+  setUrgentNot = '9';
+
+  chrome.runtime.onMessage.addListener(
+    async function (request, sender, sendResponse) {
+      const type = request?.type;
+      logger.info('request received', request)
+      if (type === messageConstants.SET_USING) {
+        try {
+          isUsePlugin = request.value
+          localStorage.setItem('clickup-useplugin', isUsePlugin)
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        }
+      } else if(type === messageConstants.SET_MOVE){
+        try {
+          moveDownkey = request.movedown
+          moveUpKey = request.moveup
+          selectTask = request.select
+          localStorage.setItem('clickup-move', JSON.stringify({moveDown: moveDownkey, moveUp: moveUpKey, selectTask: selectTask}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      } else if(type === messageConstants.SET_IMPORTANT){
+        try {
+          setImportantMust = request.mustdo
+          setImportantShould = request.shoulddo
+          setImportantWant = request.wantdo
+          localStorage.setItem('clickup-important', JSON.stringify({mustdo: setImportantMust, shoulddo: setImportantShould, wantdo: setImportantWant}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      } else if(type === messageConstants.SET_URGENT){
+        try {
+          setUrgentVery = request.very
+          setUrgentSemi = request.semi
+          setUrgentNot = request.not
+          localStorage.setItem('clickup-urgent', JSON.stringify({very: setUrgentVery, semi: setUrgentSemi, not: setUrgentNot}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      }
+    }
+  );
+
+  chrome.runtime.sendMessage({type: messageConstants.INIT}, function(response) {
+    // console.log(response);
+  });
+})();

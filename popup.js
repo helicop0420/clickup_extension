@@ -1,14 +1,9 @@
-
 const messageConstants = {
-  REQ_INIT: 'req_init',
-  REQ_REFRESH_REPORT: 'req_report_refresh',
-  RES_INIT: 'res_init',
-}
-
-const storeConstants = {
-  INITIAL_REPORT_STATUS: 'ads_initial_report_status',
-  DAILY_REPORT_STATUS: 'ads_daily_report_status',
-  EMAIL: 'ads_email'
+  SET_USING: 'set_using',
+  SET_MOVE: 'set_move',
+  SET_IMPORTANT: 'set_important',
+  SET_URGENT: 'set_urgent',
+  INIT: 'init'
 }
 
 const logger = {
@@ -23,10 +18,18 @@ const logger = {
   }
 }
 
+/**
+* Send data from popup to content
+* @param {JSON} data
+*/
+
 const sendMessage = data => {
   return new Promise(resolve => {
-    chrome.runtime.sendMessage(data, response => {
-      resolve(response);
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (tabs.length === 0) resolve();
+      chrome.tabs.sendMessage(tabs[0].id, data, function(response) {
+        resolve(response);
+      });
     });
   });
 }
@@ -47,23 +50,60 @@ const setStoreData = (key, value) => {
   })
 }
 
+/**
+* Load all settings from stroage
+*/
+
 const loadStoredData = async () => {
-  const email = await getStoreData(storeConstants.EMAIL) || '';
-  if (!email) return;
+  const isUsePlugin = await getStoreData('clickup-on');
+  const moveDown = await getStoreData('clickup-movedown');
+  const moveUp = await getStoreData('clickup-moveup');
+  const selectTask = await getStoreData('clickup-selecttask');
+  const mustDo = await getStoreData('clickup-mustdo');
+  const shouldDo = await getStoreData('clickup-shoulddo');
+  const wantDo = await getStoreData('clickup-wantdo');
+  const veryUrgent = await getStoreData('clickup-very');
+  const semiUrgent = await getStoreData('clickup-semi');
+  const notUrgent = await getStoreData('clickup-not');
 
-  document.getElementById('ads_email').value = email;
+  logger.log('useplugin', isUsePlugin);
+  if(isUsePlugin) {
+    $('#btn-on').attr('class', 'btn btn-primary btn-custom active')
+    $('#btn-off').attr('class', 'btn btn-default btn-custom')
+  } else {
+    $('#btn-off').attr('class', 'btn btn-primary btn-custom active')
+    $('#btn-on').attr('class', 'btn btn-default btn-custom')
+  }
+
+  if(moveDown) {
+    $('#move_down').val(moveDown)
+  }
+  if(moveUp) {
+    $('#move_up').val(moveUp)
+  }
+  if(selectTask) {
+    $('#select_task').val(selectTask)
+  }
+  if(mustDo) {
+    $('#must_do').val(mustDo)
+  }
+  if(shouldDo) {
+    $('#should_do').val(shouldDo)
+  }
+  if(wantDo) {
+    $('#want_do').val(wantDo)
+  }
+  if(veryUrgent) {
+    $('#urgent_very').val(veryUrgent)
+  }
+  if(semiUrgent) {
+    $('#urgent_semi').val(semiUrgent)
+  }
+  if(notUrgent) {
+    $('#urgent_not').val(notUrgent)
+  }
+
 }
-
-const storeData = async () => {
-  const email = document.getElementById('ads_email').value || '';
-  setStoreData(storeConstants.EMAIL, email);
-}
-
-const resetData = async () => {
-  setStoreData(storeConstants.EMAIL, '');
-  document.getElementById('ads_email').value = '';
-}
-
 const addEventListenerById = (id, eventName, callback) => {
   const element = document.getElementById(id);
   if (!element) return false;
@@ -73,40 +113,29 @@ const addEventListenerById = (id, eventName, callback) => {
 const init = async () => {
   logger.log('popup init');
   loadStoredData();
-  sendMessage({ type: messageConstants.REQ_INIT });
-
-  // addEventListenerById('ads_save', 'click', storeData);
 }
+
+/**
+* Add listeners from content
+*/
 
 chrome.runtime.onMessage.addListener(
   async (request) => {
     const type = request?.type;
-    if (type === messageConstants.RES_INIT) {
-      const signinStatus = request.status;
-      const booksMetadata = request.booksMetadata;
-      updateSigninStatus(signinStatus);
-      if (signinStatus) {
-        updateBooksList(booksMetadata);
+    console.log('request received', type)
+    if (type === messageConstants.INIT) {
+      try {
+        sendMoveMessage()
+        sendImportantMessage()
+        sendUrgentMessage()
+      } catch (exception) {
+        logger.error('Failed initialization', exception);
       }
-    } else if (type === messageConstants.REQ_REFRESH_REPORT) {
-      updateReportList();
-    } else {
-      logger.log('Unknown request type', request);
     }
   }
 );
 
 document.addEventListener('DOMContentLoaded', init);
-
-// escapeHtml function can be used to sanitize any user input before it is added
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
 
 $('.btn-toggle').click(function() {
   $(this).find('.btn').toggleClass('active');  
@@ -115,4 +144,120 @@ $('.btn-toggle').click(function() {
     $(this).find('.btn').toggleClass('btn-primary');
   }
   $(this).find('.btn').toggleClass('btn-default');
+
+  if( $('#btn-on').hasClass('active')) {
+    setStoreData('clickup-on', true)
+    sendMessage({ type: messageConstants.SET_USING, value: true });
+  } else {
+    setStoreData('clickup-on', false)
+    sendMessage({ type: messageConstants.SET_USING, value: false });
+  }
 });
+
+//======================================  MOVEMENT ======================================
+
+$('#btn_move_save').click(function() {
+  $('#move_error').hide()
+  if($('#move_down').val()=='' || $('#move_up').val()=='' || $('#select_task').val()=='' ) {
+    $('#move_error').show()
+    return;
+  }
+
+  setMovementData();
+  sendMoveMessage();
+})
+$('#btn_move_reset').click(function() {
+  $('#move_down').val('j')
+  $('#move_up').val('k')
+  $('#select_task').val('l')
+  
+  setMovementData();
+  sendMoveMessage();
+})
+
+function setMovementData() {
+  setStoreData('clickup-movedown', $('#move_down').val().toLowerCase())
+  setStoreData('clickup-moveup', $('#move_up').val().toLowerCase())
+  setStoreData('clickup-selecttask', $('#select_task').val().toLowerCase())
+}
+
+function sendMoveMessage() {
+  sendMessage({ 
+    type: messageConstants.SET_MOVE, 
+    movedown: $('#move_down').val().toLowerCase(),
+    moveup: $('#move_up').val().toLowerCase(),
+    select: $('#select_task').val().toLowerCase()
+  });
+}
+
+//======================================= IMPORTANT ==========================================
+
+$('#btn_important_save').click(function() {
+  $('#important_error').hide()
+  if($('#must_do').val()=='' || $('#should_do').val()=='' || $('#want_do').val()=='' ) {
+    $('#important_error').show()
+    return;
+  }
+
+  setImportantData()
+  sendImportantMessage()
+})
+$('#btn_important_reset').click(function() {
+  $('#must_do').val('1')
+  $('#should_do').val('2')
+  $('#want_do').val('3')
+  
+  setImportantData();
+  sendImportantMessage();
+})
+
+function setImportantData() {
+  setStoreData('clickup-mustdo', $('#must_do').val().toLowerCase())
+  setStoreData('clickup-shoulddo', $('#should_do').val().toLowerCase())
+  setStoreData('clickup-wantdo', $('#want_do').val().toLowerCase())
+}
+
+function sendImportantMessage() {
+  sendMessage({ 
+    type: messageConstants.SET_IMPORTANT, 
+    mustdo: $('#must_do').val().toLowerCase(),
+    shoulddo: $('#should_do').val().toLowerCase(),
+    wantdo: $('#want_do').val().toLowerCase()
+  });
+}
+
+//========================================= URGENT =========================================
+
+$('#btn_urgent_save').click(function() {
+  $('#urgent_error').hide()
+  if($('#urgent_very').val()=='' || $('#urgent_semi').val()=='' || $('#urgent_not').val()=='' ) {
+    $('#urgent_error').show()
+    return;
+  }
+
+  setUrgentData()
+  sendUrgentMessage()
+})
+$('#btn_urgent_reset').click(function() {
+  $('#urgent_very').val('7')
+  $('#urgent_semi').val('8')
+  $('#urgent_not').val('9')
+  
+  setUrgentData();
+  sendUrgentMessage();
+})
+
+function setUrgentData() {
+  setStoreData('clickup-very', $('#urgent_very').val().toLowerCase())
+  setStoreData('clickup-semi', $('#urgent_semi').val().toLowerCase())
+  setStoreData('clickup-not', $('#urgent_not').val().toLowerCase())
+}
+
+function sendUrgentMessage() {
+  sendMessage({ 
+    type: messageConstants.SET_URGENT, 
+    very: $('#urgent_very').val().toLowerCase(),
+    semi: $('#urgent_semi').val().toLowerCase(),
+    not: $('#urgent_not').val().toLowerCase()
+  });
+}
