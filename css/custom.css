@@ -1,5 +1,5 @@
 body {
-    width: 330px;
+    width: 360px;
 }
 
 hr {
@@ -30,13 +30,15 @@ button.btn-dark {
     background-color:  #e2e2e2 !important;
 }
 
-#btn-on {
+#btn-on.active {
     background-color: green !important;
 }
 
-#btn-off {
+#btn-off.active {
     background-color: red !important;
 }
+
+
 
 header {
     padding: 8px 12px;

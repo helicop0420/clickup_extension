@@ -30,6 +30,9 @@
         <li class="tab-item">
           <a class="tab-link" id="pills-report-tab" data-toggle="pill" href="#pills-report" role="tab">Urgent</a>
         </li>
+        <li class="tab-item">
+          <a class="tab-link" id="pills-priority-tab" data-toggle="pill" href="#pills-priority" role="tab">Priority</a>
+        </li>
       </ul>
     </nav>
     <hr />
@@ -79,6 +82,22 @@
           <div class="button-group">
             <button type="submit" class="btn btn-dark" id="btn_urgent_save">Save</button>
             <button type="reset" class="btn btn-dark" id="btn_urgent_reset">Reset</button>
+          </div>
+        </div>
+      </section>
+      <section class="tab-pane fade" id="pills-priority" role="tabpanel">
+        <div class="main-step">
+          <h5>Set Hotkey for Priority</h5>
+          <label for="urgent_very">Very</label>
+          <input type="text" id="priority_very" class="form-control" placeholder="Enter your hotkey" value="7" maxlength="1">
+          <label for="urgent_semi">Semi</label>
+          <input type="text" id="priority_semi" class="form-control" placeholder="Enter your hotkey" value="8" maxlength="1">
+          <label for="urgent_not">Not</label>
+          <input type="text" id="priority_not" class="form-control" placeholder="Enter your hotkey" value="9" maxlength="1">
+          <p id="priority_error" style="color: red; display: none">*Please put key for all input</p>
+          <div class="button-group">
+            <button type="submit" class="btn btn-dark" id="btn_priority_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_priority_reset">Reset</button>
           </div>
         </div>
       </section>

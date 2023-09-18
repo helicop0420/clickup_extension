@@ -3,6 +3,7 @@ const messageConstants = {
   SET_MOVE: 'set_move',
   SET_IMPORTANT: 'set_important',
   SET_URGENT: 'set_urgent',
+  SET_PRIORITY: 'set_priority',
   INIT: 'init'
 }
 
@@ -65,6 +66,9 @@ const loadStoredData = async () => {
   const veryUrgent = await getStoreData('clickup-very');
   const semiUrgent = await getStoreData('clickup-semi');
   const notUrgent = await getStoreData('clickup-not');
+  const veryPriority = await getStoreData('clickup-very-priority');
+  const semiPriority = await getStoreData('clickup-semi-priority');
+  const notPriority = await getStoreData('clickup-not-priority');
 
   logger.log('useplugin', isUsePlugin);
   if(isUsePlugin) {
@@ -102,7 +106,15 @@ const loadStoredData = async () => {
   if(notUrgent) {
     $('#urgent_not').val(notUrgent)
   }
-
+  if(veryPriority) {
+    $('#priority_very').val(veryPriority)
+  }
+  if(semiPriority) {
+    $('#priority_semi').val(semiPriority)
+  }
+  if(notPriority) {
+    $('#priority_not').val(notPriority)
+  }
 }
 const addEventListenerById = (id, eventName, callback) => {
   const element = document.getElementById(id);
@@ -128,6 +140,7 @@ chrome.runtime.onMessage.addListener(
         sendMoveMessage()
         sendImportantMessage()
         sendUrgentMessage()
+        sendPriorityMessage()
       } catch (exception) {
         logger.error('Failed initialization', exception);
       }
@@ -259,5 +272,41 @@ function sendUrgentMessage() {
     very: $('#urgent_very').val().toLowerCase(),
     semi: $('#urgent_semi').val().toLowerCase(),
     not: $('#urgent_not').val().toLowerCase()
+  });
+}
+
+//========================================= PRIORITY =========================================
+
+$('#btn_priority_save').click(function() {
+  $('#priority_error').hide()
+  if($('#priority_very').val()=='' || $('#priority_semi').val()=='' || $('#priority_not').val()=='' ) {
+    $('#priority_error').show()
+    return;
+  }
+
+  setPriorityData()
+  sendPriorityMessage()
+})
+$('#btn_priority_reset').click(function() {
+  $('#priority_very').val('u')
+  $('#priority_semi').val('o')
+  $('#priority_not').val('p')
+  
+  setPriorityData();
+  sendPriorityMessage();
+})
+
+function setPriorityData() {
+  setStoreData('clickup-very', $('#priority_very').val().toLowerCase())
+  setStoreData('clickup-semi', $('#priority_semi').val().toLowerCase())
+  setStoreData('clickup-not', $('#priority_not').val().toLowerCase())
+}
+
+function sendPriorityMessage() {
+  sendMessage({ 
+    type: messageConstants.SET_PRIORITY, 
+    very: $('#priority_very').val().toLowerCase(),
+    semi: $('#priority_semi').val().toLowerCase(),
+    not: $('#priority_not').val().toLowerCase()
   });
 }

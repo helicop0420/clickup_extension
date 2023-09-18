@@ -1,9 +1,10 @@
 const messageConstants = {
-    SET_USING: 'set_using',
-    SET_MOVE: 'set_move',
-    SET_IMPORTANT: 'set_important',
-    SET_URGENT: 'set_urgent',
-    INIT: 'init'
+  SET_USING: 'set_using',
+  SET_MOVE: 'set_move',
+  SET_IMPORTANT: 'set_important',
+  SET_URGENT: 'set_urgent',
+  SET_PRIORITY: 'set_priority',
+  INIT: 'init'
 }
 
 /**
@@ -26,6 +27,9 @@ async (request) => {
           const veryUrgent = await getStoreData('clickup-very');
           const semiUrgent = await getStoreData('clickup-semi');
           const notUrgent = await getStoreData('clickup-not');
+          const veryPriority = await getStoreData('clickup-very-priority');
+          const semiPriority = await getStoreData('clickup-semi-priority');
+          const notPriority = await getStoreData('clickup-not-priority');
 
           if(isUsePlugin) sendMessage({ type: messageConstants.SET_USING, value: isUsePlugin });
           if(moveDown && moveUp && selectTask) {
@@ -51,6 +55,14 @@ async (request) => {
                   semi: semiUrgent,
                   not: notUrgent
               });
+          }
+          if(veryPriority && semiPriority && notPriority) {
+            sendMessage({ 
+                type: messageConstants.SET_PRIORITY, 
+                very: veryPriority,
+                semi: semiPriority,
+                not: notPriority
+            });
           }
       } catch (exception) {
           logger.error('Failed initialization', exception);

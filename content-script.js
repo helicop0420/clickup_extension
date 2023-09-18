@@ -4,6 +4,7 @@ const messageConstants = {
   SET_MOVE: 'set_move',
   SET_IMPORTANT: 'set_important',
   SET_URGENT: 'set_urgent',
+  SET_PRIORITY: 'set_priority',
   INIT: 'init'
 }
 
@@ -22,6 +23,9 @@ var setImportantWant = '3';
 var setUrgentVery = '7';
 var setUrgentSemi = '8';
 var setUrgentNot = '9';
+var setPriorityVery = 'u';
+var setPrioritySemi = 'o';
+var setPriorityNot = 'p';
 
 function getSelectedTask() {
   return cuTaskRows[currentFocused];
@@ -170,9 +174,6 @@ $(document).ready( function(){
     observer.observe(targetNode, config);
   }
 
-
-
-
   function initializeClickTurbo() {
     testing("Initialize Keyboard Shortcuts");
     refreshAll();
@@ -233,7 +234,7 @@ $(document).ready( function(){
     if (event.key === selectTask) {
       const currentRow = cuTaskRows[currentFocused];
       if (toggleMarker && !shiftPressed) {
-        toggleMarker.click();
+        // toggleMarker.click();
       }
       toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
       toggleMarker.click();
@@ -271,7 +272,7 @@ $(document).ready( function(){
     getSelectedTask().focus();
     getSelectedTask().scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    $(".cu-dt-controls").hide();
+    // $(".cu-dt-controls").hide();
   }
 
   /**
@@ -286,6 +287,7 @@ $(document).ready( function(){
         return i;
       }
     }
+    return null
   }
 
   /**
@@ -299,19 +301,21 @@ $(document).ready( function(){
       setTimeout(() => {
         let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
         let order = getIdxFromCustomName(columnList, 'important')
-        columnList.children[order].click()
-
-        setTimeout(() => {
-          document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
+        if(order) {
+          columnList.children[order].click()
+  
           setTimeout(() => {
-            let num = event.key == setImportantMust? 1 : (event.key == setImportantShould? 2: 3)
-            document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
-            document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+            document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
             setTimeout(() => {
-              document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+              let num = event.key == setImportantMust? 1 : (event.key == setImportantShould? 2: 3)
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              setTimeout(() => {
+                document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+              }, 200);
             }, 200);
           }, 200);
-        }, 200);
+        }
       }, 200);
     }
   }
@@ -327,19 +331,51 @@ $(document).ready( function(){
       setTimeout(() => {
         let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
         let order = getIdxFromCustomName(columnList, 'urgent')
-        columnList.children[order].click()
-
-        setTimeout(() => {
-          document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
+        if(order) {
+          columnList.children[order].click()
+  
           setTimeout(() => {
-            let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: 3)
-            document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
-            document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+            document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
             setTimeout(() => {
-              document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+              let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: 3)
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              setTimeout(() => {
+                document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+              }, 200);
             }, 200);
           }, 200);
-        }, 200);
+        }
+      }, 200);
+    }
+  }
+
+  /**
+  * Handle key events for priority option
+  * @param {keypress event} event
+  */
+
+  function handlePriorityKey(event) {
+    if ((event.key == setPriorityVery || event.key == setPrioritySemi || event.key == setPriorityNot) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
+      setTimeout(() => {
+        let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
+        let order = getIdxFromCustomName(columnList, 'priority')
+        if(order) {
+          columnList.children[order].click()
+  
+          setTimeout(() => {
+            document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
+            setTimeout(() => {
+              let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: 3)
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              setTimeout(() => {
+                document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+              }, 200);
+            }, 200);
+          }, 200);
+        }
       }, 200);
     }
   }
@@ -365,7 +401,7 @@ const logger = {
 }
 
 /**
-* Add listener from Popup
+* Add Event listener from Popup
 */
 
 !(() => {
@@ -415,6 +451,15 @@ const logger = {
           setUrgentSemi = request.semi
           setUrgentNot = request.not
           localStorage.setItem('clickup-urgent', JSON.stringify({very: setUrgentVery, semi: setUrgentSemi, not: setUrgentNot}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      } else if(type === messageConstants.SET_PRIORITY){
+        try {
+          setPriorityVery = request.very
+          setPrioritySemi = request.semi
+          setPriorityNot = request.not
+          localStorage.setItem('clickup-priority', JSON.stringify({very: setPriorityVery, semi: setPrioritySemi, not: setPriorityNot}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 
