@@ -11,11 +11,15 @@
 
 <body>
   <header>
-    <img src="logo.png" alt="logo" />
-    <span>Clickup Plugin</span>
-    <div class="btn-group btn-toggle" style="display: flex;"> 
-      <button id="btn-on" class="btn btn-primary btn-custom active">ON</button>
-      <button id="btn-off" class="btn btn-default btn-custom">OFF</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <div style="display: flex; align-items: center;">
+        <img src="logo.png" alt="logo" />
+        <span>Clickup Plugin</span>
+      </div>
+      <div class="btn-group btn-toggle" style="display: flex;"> 
+        <button id="btn-on" class="btn btn-primary btn-custom active">ON</button>
+        <button id="btn-off" class="btn btn-default btn-custom">OFF</button>
+      </div>
     </div>
   </header>
   <main class="wrapper">
@@ -25,6 +29,9 @@
           <a class="tab-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab">Move</a>
         </li>
         <li class="tab-item">
+          <a class="tab-link" id="pills-when-tab" data-toggle="pill" href="#pills-when" role="tab">When</a>
+        </li>
+        <li class="tab-item">
           <a class="tab-link" id="pills-kdp-tab" data-toggle="pill" href="#pills-kdp" role="tab">Important</a>
         </li>
         <li class="tab-item">
@@ -32,6 +39,9 @@
         </li>
         <li class="tab-item">
           <a class="tab-link" id="pills-priority-tab" data-toggle="pill" href="#pills-priority" role="tab">Priority</a>
+        </li>
+        <li class="tab-item">
+          <a class="tab-link" id="pills-date-tab" data-toggle="pill" href="#pills-date" role="tab">Due Date</a>
         </li>
       </ul>
     </nav>
@@ -53,6 +63,28 @@
           </div>
         </div>
       </section>
+      <section class="tab-pane fade in" id="pills-when" role="tabpanel">
+        <div class="main-step">
+          <h5>Set Hotkey for When</h5>
+          <label for="move_down">This Week</label>
+          <input id="when_thisweek" type="text" name="move_down" class="form-control" placeholder="Enter your hotkey" value="q" maxlength="1">
+          <label for="move_up">Next Week</label>
+          <input id="when_nextweek" type="text" name="move_up" class="form-control" placeholder="Enter your hotkey" value="w" maxlength="1">
+          <label for="select_task">This Month</label>
+          <input id="when_thismonth" type="text" name="select_task" class="form-control" placeholder="Enter your hotkey" value="e" maxlength="1">
+          <label for="select_task">Next Month</label>
+          <input id="when_nextmonth" type="text" name="select_task" class="form-control" placeholder="Enter your hotkey" value="r" maxlength="1">
+          <label for="select_task">Long Term</label>
+          <input id="when_longterm" type="text" name="select_task" class="form-control" placeholder="Enter your hotkey" value="t" maxlength="1">
+          <label for="move_down">Clear</label>
+          <input id="when_empty" type="text" name="move_down" class="form-control" placeholder="Enter your hotkey" value="y" maxlength="1">
+          <p id="when_error" style="color: red; display: none">*Please put key for all input</p>
+          <div class="button-group">
+            <button type="submit" class="btn btn-dark" id="btn_when_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_when_reset">Reset</button>
+          </div>
+        </div>
+      </section>
       <section class="tab-pane fade" id="pills-kdp" role="tabpanel">
         <div class="main-step" id="ads_kdp_signin">
           <h5>Set Hotkey for Important</h5>
@@ -62,6 +94,8 @@
           <input type="text" id="should_do" class="form-control" placeholder="Enter your hotkey" value="2" maxlength="1">
           <label for="want_do">Want do</label>
           <input type="text" id="want_do" class="form-control" placeholder="Enter your hotkey" value="3" maxlength="1">
+          <label for="want_do">Clear</label>
+          <input type="text" id="empty_do" class="form-control" placeholder="Enter your hotkey" value="4" maxlength="1">
           <p id="important_error" style="color: red; display: none">*Please put key for all input</p>
           <div class="button-group">
             <button type="submit" class="btn btn-dark" id="btn_important_save">Save</button>
@@ -78,6 +112,8 @@
           <input type="text" id="urgent_semi" class="form-control" placeholder="Enter your hotkey" value="8" maxlength="1">
           <label for="urgent_not">Not</label>
           <input type="text" id="urgent_not" class="form-control" placeholder="Enter your hotkey" value="9" maxlength="1">
+          <label for="urgent_not">Clear</label>
+          <input type="text" id="urgent_empty" class="form-control" placeholder="Enter your hotkey" value="0" maxlength="1">
           <p id="urgent_error" style="color: red; display: none">*Please put key for all input</p>
           <div class="button-group">
             <button type="submit" class="btn btn-dark" id="btn_urgent_save">Save</button>
@@ -88,16 +124,34 @@
       <section class="tab-pane fade" id="pills-priority" role="tabpanel">
         <div class="main-step">
           <h5>Set Hotkey for Priority</h5>
-          <label for="urgent_very">Very</label>
-          <input type="text" id="priority_very" class="form-control" placeholder="Enter your hotkey" value="7" maxlength="1">
-          <label for="urgent_semi">Semi</label>
-          <input type="text" id="priority_semi" class="form-control" placeholder="Enter your hotkey" value="8" maxlength="1">
+          <label for="urgent_very">Urgent</label>
+          <input type="text" id="priority_very" class="form-control" placeholder="Enter your hotkey" value="a" maxlength="1">
+          <label for="urgent_semi">High</label>
+          <input type="text" id="priority_semi" class="form-control" placeholder="Enter your hotkey" value="s" maxlength="1">
+          <label for="urgent_not">Normal</label>
+          <input type="text" id="priority_normal" class="form-control" placeholder="Enter your hotkey" value="c" maxlength="1">
           <label for="urgent_not">Not</label>
-          <input type="text" id="priority_not" class="form-control" placeholder="Enter your hotkey" value="9" maxlength="1">
+          <input type="text" id="priority_not" class="form-control" placeholder="Enter your hotkey" value="f" maxlength="1">
+          <label for="urgent_not">Clear</label>
+          <input type="text" id="priority_clear" class="form-control" placeholder="Enter your hotkey" value="g" maxlength="1">
           <p id="priority_error" style="color: red; display: none">*Please put key for all input</p>
           <div class="button-group">
             <button type="submit" class="btn btn-dark" id="btn_priority_save">Save</button>
             <button type="reset" class="btn btn-dark" id="btn_priority_reset">Reset</button>
+          </div>
+        </div>
+      </section>
+      <section class="tab-pane fade" id="pills-date" role="tabpanel">
+        <div class="main-step">
+          <h5>Set Hotkey for Due Date</h5>
+          <label for="date_open">Open</label>
+          <input type="text" id="date_open" class="form-control" placeholder="Enter your hotkey" value="o" maxlength="1">
+          <label for="date_close">Close</label>
+          <input type="text" id="date_close" class="form-control" placeholder="Enter your hotkey" value="p" maxlength="1">
+          <p id="date_error" style="color: red; display: none">*Please put key for all input</p>
+          <div class="button-group">
+            <button type="submit" class="btn btn-dark" id="btn_date_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_date_reset">Reset</button>
           </div>
         </div>
       </section>

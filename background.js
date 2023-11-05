@@ -4,9 +4,10 @@ const messageConstants = {
   SET_IMPORTANT: 'set_important',
   SET_URGENT: 'set_urgent',
   SET_PRIORITY: 'set_priority',
+  SET_DUEDATE: 'set_date',
+  SET_WHEN: 'set_when',
   INIT: 'init'
 }
-
 /**
 * Background is used to send setting to content from popup.
 * content -> background -> popup
@@ -24,14 +25,26 @@ async (request) => {
           const mustDo = await getStoreData('clickup-mustdo');
           const shouldDo = await getStoreData('clickup-shoulddo');
           const wantDo = await getStoreData('clickup-wantdo');
+          const emptyDo = await getStoreData('clickup-emptydo');
           const veryUrgent = await getStoreData('clickup-very');
           const semiUrgent = await getStoreData('clickup-semi');
           const notUrgent = await getStoreData('clickup-not');
+          const emptyUrgent = await getStoreData('clickup-empty');
           const veryPriority = await getStoreData('clickup-very-priority');
           const semiPriority = await getStoreData('clickup-semi-priority');
+          const normalPriority = await getStoreData('clickup-normal-priority');
           const notPriority = await getStoreData('clickup-not-priority');
+          const emptyPriority = await getStoreData('clickup-empty-priority');
+          const openDate = await getStoreData('clickup-open');
+          const closeDate = await getStoreData('clickup-close');
+          const thisWeek = await getStoreData('clickup-thisweek')
+          const nextWeek = await getStoreData('clickup-nextweek')
+          const thisMonth = await getStoreData('clickup-thismonth')
+          const nextMonth = await getStoreData('clickup-nextmonth')
+          const longTerm = await getStoreData('clickup-longterm')
+          const emptyWhen = await getStoreData('clickup-emptywhen')
 
-          if(isUsePlugin) sendMessage({ type: messageConstants.SET_USING, value: isUsePlugin });
+          if(isUsePlugin != null) sendMessage({ type: messageConstants.SET_USING, value: isUsePlugin });
           if(moveDown && moveUp && selectTask) {
               sendMessage({ 
                   type: messageConstants.SET_MOVE, 
@@ -45,7 +58,8 @@ async (request) => {
                   type: messageConstants.SET_IMPORTANT, 
                   mustdo: mustDo,
                   shoulddo: shouldDo,
-                  wantdo: wantDo
+                  wantdo: wantDo,
+                  emptydo: emptyDo
               });
           }
           if(veryUrgent && semiUrgent && notUrgent) {
@@ -53,16 +67,32 @@ async (request) => {
                   type: messageConstants.SET_URGENT, 
                   very: veryUrgent,
                   semi: semiUrgent,
-                  not: notUrgent
+                  not: notUrgent,
+                  empty: emptyUrgent
               });
           }
-          if(veryPriority && semiPriority && notPriority) {
+          if(veryPriority && semiPriority && notPriority && normalPriority) {
             sendMessage({ 
                 type: messageConstants.SET_PRIORITY, 
                 very: veryPriority,
                 semi: semiPriority,
-                not: notPriority
+                normal: normalPriority,
+                not: notPriority,
+                empty: emptyPriority
             });
+          }
+          if(openDate && closeDate) {
+            sendMessage({ 
+                type: messageConstants.SET_DUEDATE, 
+                open: openDate,
+                close: closeDate,
+            });
+          }
+          if(thisWeek && nextWeek && thisMonth && nextMonth && longTerm) {
+            sendMessage({ 
+              type: messageConstants.SET_WHEN, 
+              thisWeek, nextWeek, thisMonth, nextMonth, longTerm, emptyWhen
+          });
           }
       } catch (exception) {
           logger.error('Failed initialization', exception);

@@ -5,6 +5,8 @@ const messageConstants = {
   SET_IMPORTANT: 'set_important',
   SET_URGENT: 'set_urgent',
   SET_PRIORITY: 'set_priority',
+  SET_DUEDATE: 'set_date',
+  SET_WHEN: 'set_when',
   INIT: 'init'
 }
 
@@ -20,12 +22,25 @@ var selectTask = 'l';
 var setImportantMust = '1';
 var setImportantShould = '2';
 var setImportantWant = '3';
+var setImportantEmpty = '4';
 var setUrgentVery = '7';
 var setUrgentSemi = '8';
 var setUrgentNot = '9';
-var setPriorityVery = 'u';
-var setPrioritySemi = 'o';
-var setPriorityNot = 'p';
+var setUrgentEmpty = '0';
+var setPriorityVery = 'a';
+var setPrioritySemi = 's';
+var setPriorityNormal = 'c';
+var setPriorityNot = 'f';
+var setPriorityEmpty = 'g';
+var openDateKey = 'o';
+var closeDateKey = 'p';
+var thisWeek = 'q';
+var nextWeek = 'w';
+var thisMonth = 'e';
+var nextMonth = 'r';
+var longTerm = 't';
+var emptyWhen = 'y';
+
 
 function getSelectedTask() {
   return cuTaskRows[currentFocused];
@@ -37,59 +52,15 @@ var timeout;
 var domLoaded = false;
 
 const style = document.createElement("style");
-
+const activeColor = '#e9e9e9'
 const turbo_style = `
 
 .active-list-item {
-  background-color: #e9e9e9 !important;
+  background-color: ${activeColor};
 }
-
-.active-list-item .cu-task-row-main__link-text-inner {
-
+.active-list-item .cu-task-row__toggle-container {
+  background-color: ${activeColor} !important;
 }
-
-.dark-theme .cu-dt-controls {
-	border-color: #0d1520;
-	background: #0d1520 !important;
-	opacity: 0;
-}
-
-.dark-theme .cu-dt-controls:hover {
-  opacity: 1;
-}
-
-
-.dark-theme .cu-dashboard-table__scroll {
-	background: #0d1520 !important;
-}
-
-body.dark-theme {
-  --cu-background-main: #0d1520 !important;
-}
-
-.dark-theme .cu-task-list-header__item_main {
-	background: #0d1520 !important;
-	color: transparent;
-}
-
-.dark-theme .cu-task-row__main {
-	background-color: #0a0c1b5c !important;
-}
-
-.dark-theme .cu-task-list-header {
-	background: #0a0c1b5c !important;
-	color: transparent;
-}
-
-.cu-task-row-assignee, .cu-task-row__priority, .cu-task-row-recurring-date-picker {
-	background: transparent !important;
-}
-
-.cu-task-row__container {
-	background: #0a0c1b5c !important;
-}
-
-
 
 `;
 
@@ -203,12 +174,18 @@ $(document).ready( function(){
   */
 
   function onKeyDown(event) {
-    testing("Key Down Pressed==");
     if(!isUsePlugin) return;
+    if(document.getElementsByTagName('cu-create-task-draft').length > 0) return;  //create ticket modal
+    if(document.getElementsByTagName('cu-manager-view-task').length > 0) return;
+
     handleEscapeKey(event);
     handleNavigationKeys(event);
     handleImportantKey(event);
     handleUrgentKey(event);
+    handlePriorityKey(event);
+    openDueDate(event)
+    closeDueDate(event);
+    handleWhenKey(event);
   }
 
   /**
@@ -291,12 +268,62 @@ $(document).ready( function(){
   }
 
   /**
+  * Handle key events for when option
+  * @param {keypress event} event
+  */
+
+  function handleWhenKey(event) {
+    if ((event.key == thisWeek || event.key == nextWeek || event.key == thisMonth || event.key == nextMonth || event.key == longTerm || event.key == emptyWhen) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
+      setTimeout(() => {
+        let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
+        let order = getIdxFromCustomName(columnList, 'when')
+        if(order != null) {
+          columnList.children[order].click()
+  
+          setTimeout(() => {
+            document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
+            setTimeout(() => {
+              let num = 0;
+              switch (event.key) {
+                case thisWeek:
+                  num = 1
+                  break;
+                case nextWeek:
+                  num = 2
+                  break
+                case thisMonth:
+                  num = 3
+                  break
+                case nextMonth:
+                  num = 4
+                  break
+                case longTerm:
+                  num = 5
+                  break
+                case emptyWhen:
+                  num = 0
+                  break
+              }
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
+              setTimeout(() => {
+                document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+              }, 200);
+            }, 200);
+          }, 200);
+        }
+      }, 200);
+    }
+  }
+
+  /**
   * Handle key events for important option
   * @param {keypress event} event
   */
 
   function handleImportantKey(event) {
-    if ((event.key == setImportantMust || event.key == setImportantShould || event.key == setImportantWant) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+    if ((event.key == setImportantMust || event.key == setImportantShould || event.key == setImportantWant || event.key == setImportantEmpty) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
         let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
@@ -307,7 +334,7 @@ $(document).ready( function(){
           setTimeout(() => {
             document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
             setTimeout(() => {
-              let num = event.key == setImportantMust? 1 : (event.key == setImportantShould? 2: 3)
+              let num = event.key == setImportantMust? 1 : (event.key == setImportantShould? 2: (event.key == setImportantWant ? 3 : 0))
               document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
               document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
               setTimeout(() => {
@@ -326,7 +353,7 @@ $(document).ready( function(){
   */
 
   function handleUrgentKey(event) {
-    if ((event.key == setUrgentVery || event.key == setUrgentSemi || event.key == setUrgentNot) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+    if ((event.key == setUrgentVery || event.key == setUrgentSemi || event.key == setUrgentNot || event.key == setUrgentEmpty) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
       setTimeout(() => {
         let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
@@ -337,7 +364,7 @@ $(document).ready( function(){
           setTimeout(() => {
             document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
             setTimeout(() => {
-              let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: 3)
+              let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: (event.key == setUrgentNot ? 3 : 0))
               document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
               document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
               setTimeout(() => {
@@ -356,29 +383,39 @@ $(document).ready( function(){
   */
 
   function handlePriorityKey(event) {
-    if ((event.key == setPriorityVery || event.key == setPrioritySemi || event.key == setPriorityNot) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
-      document.getElementsByClassName('cu-dt-controls__item_cf')[0].click()   //custom menu click
+    if ((event.key == setPriorityVery || event.key == setPrioritySemi || event.key == setPriorityNot || event.key == setPriorityNormal || event.key == setPriorityEmpty) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      document.querySelector('div[data-test="dashboard-table-toolbar-set-priority"]').querySelector('div[dropdownmodifierclass="cu-priority-list-dropdown-customizations"]').children[0].click()
       setTimeout(() => {
-        let columnList = document.getElementsByClassName('cu-dropdown__menu_left')[0].children[0].getElementsByClassName('columns-list__body')[0]
-        let order = getIdxFromCustomName(columnList, 'priority')
-        if(order) {
-          columnList.children[order].click()
-  
-          setTimeout(() => {
-            document.getElementsByClassName('cu-dt-controls__cf-body')[0].children[0].getElementsByClassName('cu-custom-fields__type-dropdown')[0].click()
-            setTimeout(() => {
-              let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: 3)
-              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
-              document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].children[0].click()
-              setTimeout(() => {
-                document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
-              }, 200);
-            }, 200);
-          }, 200);
-        }
+        let num = event.key == setPriorityVery? 0: (event.key == setPrioritySemi? 1: (event.key == setPriorityNormal?2: (event.key == setPriorityNot? 3 : 4)))
+        document.getElementsByClassName('priority-list-item ng-star-inserted')[num].children[0].click()
       }, 200);
     }
   }
+
+   /**
+  * Handle key events for open due date
+  * @param {keypress event} event
+  */
+
+   function openDueDate(event) {
+    if ((event.key == openDateKey) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      document.getElementsByTagName('cu-dashboard-table-toolbar')[0].getElementsByClassName('cu-recurring-date-dropdown__dropdown cu-dropdown')[0].children[0].click()
+    }
+   }
+
+   /**
+  * Handle key events for close due date
+  * @param {keypress event} event
+  */
+
+   function closeDueDate(event) {
+    if(event.key == closeDateKey) {
+      document.getElementsByClassName('cu-calendar-picker__done')[0].click()
+      setTimeout(() => {
+        document.querySelector("[data-test=dashboard-table-toolbar-save]").click()
+      }, 200);
+    }
+   }
 
 });
 
@@ -415,6 +452,17 @@ const logger = {
   setUrgentVery = '7';
   setUrgentSemi = '8';
   setUrgentNot = '9';
+  setPriorityVery = 'a';
+  setPrioritySemi = 's';
+  setPriorityNormal = 'c';
+  setPriorityNot = 'f';
+  openDateKey = 'o';
+  closeDateKey = 'p';
+  thisWeek = 'q';
+  nextWeek = 'w';
+  thisMonth = 'e';
+  nextMonth = 'r';
+  longTerm = 't';
 
   chrome.runtime.onMessage.addListener(
     async function (request, sender, sendResponse) {
@@ -424,6 +472,12 @@ const logger = {
         try {
           isUsePlugin = request.value
           localStorage.setItem('clickup-useplugin', isUsePlugin)
+          if(isUsePlugin) {
+            cuTaskRows[currentFocused].classList.add("active-list-item");
+          } else {
+            cuTaskRows[currentFocused].classList.remove("active-list-item");
+          }
+
         } catch (exception) {
           logger.error('Failed initialization', exception);
         }
@@ -441,7 +495,8 @@ const logger = {
           setImportantMust = request.mustdo
           setImportantShould = request.shoulddo
           setImportantWant = request.wantdo
-          localStorage.setItem('clickup-important', JSON.stringify({mustdo: setImportantMust, shoulddo: setImportantShould, wantdo: setImportantWant}))
+          setImportantEmpty = request.emptydo
+          localStorage.setItem('clickup-important', JSON.stringify({mustdo: setImportantMust, shoulddo: setImportantShould, wantdo: setImportantWant, emptydo: setImportantEmpty}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 
@@ -450,7 +505,8 @@ const logger = {
           setUrgentVery = request.very
           setUrgentSemi = request.semi
           setUrgentNot = request.not
-          localStorage.setItem('clickup-urgent', JSON.stringify({very: setUrgentVery, semi: setUrgentSemi, not: setUrgentNot}))
+          setUrgentEmpty = request.empty
+          localStorage.setItem('clickup-urgent', JSON.stringify({very: setUrgentVery, semi: setUrgentSemi, not: setUrgentNot, empty: setUrgentEmpty}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 
@@ -458,8 +514,30 @@ const logger = {
         try {
           setPriorityVery = request.very
           setPrioritySemi = request.semi
+          setPriorityNormal = request.normal
           setPriorityNot = request.not
-          localStorage.setItem('clickup-priority', JSON.stringify({very: setPriorityVery, semi: setPrioritySemi, not: setPriorityNot}))
+          setPriorityEmpty = request.empty
+          localStorage.setItem('clickup-priority', JSON.stringify({very: setPriorityVery, semi: setPrioritySemi, normal: setPriorityNormal, not: setPriorityNot, empty: setPriorityEmpty}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      } else if(type === messageConstants.SET_DUEDATE){
+        try {
+          openDateKey = request.open
+          closeDateKey = request.close
+          localStorage.setItem('clickup-date', JSON.stringify({open: openDateKey, close: closeDateKey}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      } else if(type === messageConstants.SET_WHEN){
+        try {
+          thisWeek = request.thisWeek;
+          nextWeek = request.nextWeek;
+          thisMonth = request.thisMonth;
+          nextMonth = request.nextMonth;
+          longTerm = request.longTerm;
+          emptyWhen = request.emptyWhen;
+          localStorage.setItem('clickup-when', JSON.stringify({thisWeek, nextWeek, thisMonth, nextMonth, longTerm, emptyWhen}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 
