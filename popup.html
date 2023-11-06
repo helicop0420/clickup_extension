@@ -43,6 +43,9 @@
         <li class="tab-item">
           <a class="tab-link" id="pills-date-tab" data-toggle="pill" href="#pills-date" role="tab">Due Date</a>
         </li>
+        <li class="tab-item">
+          <a class="tab-link" id="pills-date-tab" data-toggle="pill" href="#pills-new" role="tab">New Features</a>
+        </li>
       </ul>
     </nav>
     <hr />
@@ -152,6 +155,17 @@
           <div class="button-group">
             <button type="submit" class="btn btn-dark" id="btn_date_save">Save</button>
             <button type="reset" class="btn btn-dark" id="btn_date_reset">Reset</button>
+          </div>
+        </div>
+      </section>
+      <section class="tab-pane fade" id="pills-new" role="tabpanel">
+        <div class="main-step">
+          <label for="date_open">In Progress Convert</label>
+          <input type="text" id="status_progress" class="form-control" placeholder="Enter your hotkey" value="5" maxlength="1">
+          <p id="new_error" style="color: red; display: none">*Please put key for all input</p>
+          <div class="button-group">
+            <button type="submit" class="btn btn-dark" id="btn_new_save">Save</button>
+            <button type="reset" class="btn btn-dark" id="btn_new_reset">Reset</button>
           </div>
         </div>
       </section>

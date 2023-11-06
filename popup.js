@@ -6,6 +6,7 @@ const messageConstants = {
   SET_PRIORITY: 'set_priority',
   SET_DUEDATE: 'set_date',
   SET_WHEN: 'set_when',
+  SET_NEW: 'set_new',
   INIT: 'init'
 }
 
@@ -83,6 +84,7 @@ const loadStoredData = async () => {
   const nextMonth = await getStoreData('clickup-nextmonth')
   const longTerm = await getStoreData('clickup-longterm')
   const emptyWhen = await getStoreData('clickup-emptywhen')
+  const statusProgress = await getStoreData('clickup-status-progress')
 
   logger.log('useplugin', isUsePlugin);
   if(isUsePlugin) {
@@ -165,11 +167,9 @@ const loadStoredData = async () => {
   if(emptyWhen) {
     $('#when_empty').val(emptyWhen)
   }
-}
-const addEventListenerById = (id, eventName, callback) => {
-  const element = document.getElementById(id);
-  if (!element) return false;
-  element.addEventListener(eventName, callback);
+  if(statusProgress) {
+    $('#status_progress').val(statusProgress)
+  }
 }
 
 const init = async () => {
@@ -192,6 +192,7 @@ chrome.runtime.onMessage.addListener(
         sendUrgentMessage()
         sendPriorityMessage()
         sendDateMessage()
+        sendNewMessage()
       } catch (exception) {
         logger.error('Failed initialization', exception);
       }
@@ -503,5 +504,35 @@ function sendDateMessage() {
     type: messageConstants.SET_DUEDATE, 
     open: $('#date_open').val().toLowerCase(),
     close: $('#date_close').val().toLowerCase(),
+  });
+}
+
+//================================================= NEW Features =========================================
+
+$('#btn_new_save').click(function() {
+  $('#new_error').hide()
+  // if($('#new_open').val()=='' || $('#date_close').val()=='') {
+  //   $('#new_error').show()
+  //   return;
+  // }
+
+  setNewData()
+  sendNewMessage()
+})
+$('#btn_new_reset').click(function() {
+  $('#status_progress').val('5')
+  
+  setNewData();
+  sendDateMessage();
+})
+
+function setNewData() {
+  setStoreData('clickup-status-progress', $('#status_progress').val().toLowerCase())
+}
+
+function sendNewMessage() {
+  sendMessage({ 
+    type: messageConstants.SET_NEW, 
+    progress: $('#status_progress').val().toLowerCase(),
   });
 }

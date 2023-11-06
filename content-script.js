@@ -7,6 +7,7 @@ const messageConstants = {
   SET_PRIORITY: 'set_priority',
   SET_DUEDATE: 'set_date',
   SET_WHEN: 'set_when',
+  SET_NEW: 'set_new',
   INIT: 'init'
 }
 
@@ -40,6 +41,7 @@ var thisMonth = 'e';
 var nextMonth = 'r';
 var longTerm = 't';
 var emptyWhen = 'y';
+var setProgressKey = '5'
 
 
 function getSelectedTask() {
@@ -176,16 +178,19 @@ $(document).ready( function(){
   function onKeyDown(event) {
     if(!isUsePlugin) return;
     if(document.getElementsByTagName('cu-create-task-draft').length > 0) return;  //create ticket modal
-    if(document.getElementsByTagName('cu-manager-view-task').length > 0) return;
-
-    handleEscapeKey(event);
-    handleNavigationKeys(event);
-    handleImportantKey(event);
-    handleUrgentKey(event);
-    handlePriorityKey(event);
-    openDueDate(event)
-    closeDueDate(event);
-    handleWhenKey(event);
+    if(document.getElementsByTagName('cu-manager-view-task').length > 0) {
+      handleProgressKey(event);
+      handleWhenViewKey(event)
+    } else {
+      handleEscapeKey(event);
+      handleNavigationKeys(event);
+      handleImportantKey(event);
+      handleUrgentKey(event);
+      handlePriorityKey(event);
+      openDueDate(event)
+      closeDueDate(event);
+      handleWhenKey(event);
+    }    
   }
 
   /**
@@ -268,6 +273,36 @@ $(document).ready( function(){
   }
 
   /**
+  * Get index from correct status
+  * @param {HTML NODE} node
+  * @param {String} field
+  */
+
+  function getIdxFromViewStatus(node, field) {
+    for(let i = 0; i < node.length; i ++) {
+      if(node[i].ariaLabel.toLowerCase().indexOf(field)>-1) {
+        return i;
+      }
+    }
+    return null
+  }
+
+  /**
+  * Get index from correct status
+  * @param {HTML NODE} node
+  * @param {String} field
+  */
+
+  function getIdxFromViewCustom(node, field) {
+    for(let i = 0; i < node.length; i ++) {
+      if(node[i].innerText.toLowerCase().indexOf(field)>-1) {
+        return i;
+      }
+    }
+    return null
+  }
+
+  /**
   * Handle key events for when option
   * @param {keypress event} event
   */
@@ -313,6 +348,20 @@ $(document).ready( function(){
             }, 200);
           }, 200);
         }
+      }, 200);
+    }
+  }
+
+  function handleWhenViewKey(event) {
+    if ((event.key == thisWeek || event.key == nextWeek || event.key == thisMonth || event.key == nextMonth || event.key == longTerm || event.key == emptyWhen) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      let collapseBtn = document.getElementsByClassName('cu-task-custom-fields__collapsed')
+      if(collapseBtn?.length > 0 && collapseBtn[0].innerText.toLowerCase().indexOf('show')>-1) collapseBtn[0].click();
+  
+      setTimeout(() => {
+        let customList = document.getElementsByClassName('cu-task-custom-fields__row')
+        let idx = getIdxFromViewCustom(customList, 'when')
+    
+        customList[idx].children[1].getElementsByTagName('cu-edit-task-dropdown-custom-field-value')[0].children[0].click()
       }, 200);
     }
   }
@@ -392,6 +441,23 @@ $(document).ready( function(){
     }
   }
 
+  /**
+  * Handle key events for convert task to 'in progress' in open task
+  * @param {keypress event} event
+  */
+
+  function handleProgressKey(event) {
+    if ((event.key == setProgressKey) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      document.getElementsByClassName('task-status')[0].children[0].children[0].click();
+      setTimeout(() => {
+        let progressList = document.getElementsByClassName('status-list__item')
+        let idx = getIdxFromViewStatus(progressList, 'in progress')
+
+        progressList[idx].click()
+      }, 200)
+    }
+  }
+
    /**
   * Handle key events for open due date
   * @param {keypress event} event
@@ -463,6 +529,7 @@ const logger = {
   thisMonth = 'e';
   nextMonth = 'r';
   longTerm = 't';
+  setProgressKey = '5';
 
   chrome.runtime.onMessage.addListener(
     async function (request, sender, sendResponse) {
@@ -538,6 +605,13 @@ const logger = {
           longTerm = request.longTerm;
           emptyWhen = request.emptyWhen;
           localStorage.setItem('clickup-when', JSON.stringify({thisWeek, nextWeek, thisMonth, nextMonth, longTerm, emptyWhen}))
+        } catch (exception) {
+          logger.error('Failed initialization', exception);
+        } 
+      } else if(type == messageConstants.SET_NEW) {
+        try {
+          setProgressKey = request.progress
+          localStorage.setItem('clickup-status-progress', JSON.stringify({progress: setProgressKey}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 

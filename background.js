@@ -6,6 +6,7 @@ const messageConstants = {
   SET_PRIORITY: 'set_priority',
   SET_DUEDATE: 'set_date',
   SET_WHEN: 'set_when',
+  SET_NEW: 'set_new',
   INIT: 'init'
 }
 /**
@@ -43,6 +44,7 @@ async (request) => {
           const nextMonth = await getStoreData('clickup-nextmonth')
           const longTerm = await getStoreData('clickup-longterm')
           const emptyWhen = await getStoreData('clickup-emptywhen')
+          const statusProgress = await getStoreData('clickup-status-progress')
 
           if(isUsePlugin != null) sendMessage({ type: messageConstants.SET_USING, value: isUsePlugin });
           if(moveDown && moveUp && selectTask) {
@@ -92,8 +94,14 @@ async (request) => {
             sendMessage({ 
               type: messageConstants.SET_WHEN, 
               thisWeek, nextWeek, thisMonth, nextMonth, longTerm, emptyWhen
-          });
+            });
+          if(statusProgress) {
+            sendMessage({ 
+              type: messageConstants.SET_NEW, 
+              progress: statusProgress
+            });
           }
+        }
       } catch (exception) {
           logger.error('Failed initialization', exception);
       }
