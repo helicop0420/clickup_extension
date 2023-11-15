@@ -180,14 +180,17 @@ $(document).ready( function(){
     if(document.getElementsByTagName('cu-create-task-draft').length > 0) return;  //create ticket modal
     if(document.getElementsByTagName('cu-manager-view-task').length > 0) {
       handleProgressKey(event);
-      handleWhenViewKey(event)
+      handleWhenViewKey(event);
+      handleImportantViewKey(event);
+      handleUrgentViewKey(event);
+      handlePriorityViewKey(event);
     } else {
       handleEscapeKey(event);
       handleNavigationKeys(event);
       handleImportantKey(event);
       handleUrgentKey(event);
       handlePriorityKey(event);
-      openDueDate(event)
+      openDueDate(event);
       closeDueDate(event);
       handleWhenKey(event);
     }    
@@ -352,6 +355,11 @@ $(document).ready( function(){
     }
   }
 
+  /**
+  * Handle key events for when option in openning task
+  * @param {keypress event} event
+  */
+
   function handleWhenViewKey(event) {
     if ((event.key == thisWeek || event.key == nextWeek || event.key == thisMonth || event.key == nextMonth || event.key == longTerm || event.key == emptyWhen) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
       let collapseBtn = document.getElementsByClassName('cu-task-custom-fields__collapsed')
@@ -361,7 +369,58 @@ $(document).ready( function(){
         let customList = document.getElementsByClassName('cu-task-custom-fields__row')
         let idx = getIdxFromViewCustom(customList, 'when')
     
-        customList[idx].children[1].getElementsByTagName('cu-edit-task-dropdown-custom-field-value')[0].children[0].click()
+        customList[idx].children[1].getElementsByTagName('cu-edit-task-dropdown-custom-field-value')[0].children[0].click();
+
+        setTimeout(() => {
+          let num = 0;
+          switch (event.key) {
+            case thisWeek:
+              num = 1
+              break;
+            case nextWeek:
+              num = 2
+              break
+            case thisMonth:
+              num = 3
+              break
+            case nextMonth:
+              num = 4
+              break
+            case longTerm:
+              num = 5
+              break
+            case emptyWhen:
+              num = 0
+              break
+          }
+          document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].click()
+          document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].click()
+        }, 400);
+      }, 200);
+    }
+  }
+
+  /**
+  * Handle key events for important option in openning task
+  * @param {keypress event} event
+  */
+
+  function handleImportantViewKey(event) {
+    if ((event.key == setImportantMust || event.key == setImportantShould || event.key == setImportantWant || event.key == setImportantEmpty) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      let collapseBtn = document.getElementsByClassName('cu-task-custom-fields__collapsed')
+      if(collapseBtn?.length > 0 && collapseBtn[0].innerText.toLowerCase().indexOf('show')>-1) collapseBtn[0].click();
+  
+      setTimeout(() => {
+        let customList = document.getElementsByClassName('cu-task-custom-fields__row')
+        let idx = getIdxFromViewCustom(customList, 'important')
+    
+        customList[idx].children[1].getElementsByTagName('cu-edit-task-dropdown-custom-field-value')[0].children[0].click();
+
+        setTimeout(() => {
+          let num = event.key == setImportantMust? 1 : (event.key == setImportantShould? 2: (event.key == setImportantWant ? 3 : 0))
+          document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].click()
+          document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].click()
+        }, 400);
       }, 200);
     }
   }
@@ -396,6 +455,31 @@ $(document).ready( function(){
     }
   }
 
+   /**
+  * Handle key events for urgent option in openning task
+  * @param {keypress event} event
+  */
+
+   function handleUrgentViewKey(event) {
+    if ((event.key == setUrgentVery || event.key == setUrgentSemi || event.key == setUrgentNot || event.key == setUrgentEmpty) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      let collapseBtn = document.getElementsByClassName('cu-task-custom-fields__collapsed')
+      if(collapseBtn?.length > 0 && collapseBtn[0].innerText.toLowerCase().indexOf('show')>-1) collapseBtn[0].click();
+  
+      setTimeout(() => {
+        let customList = document.getElementsByClassName('cu-task-custom-fields__row')
+        let idx = getIdxFromViewCustom(customList, 'urgent')
+    
+        customList[idx].children[1].getElementsByTagName('cu-edit-task-dropdown-custom-field-value')[0].children[0].click();
+
+        setTimeout(() => {
+          let num = event.key == setUrgentVery? 1: (event.key == setUrgentSemi? 2: (event.key == setUrgentNot ? 3 : 0))
+          document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].click()
+          document.getElementsByClassName('cu-select__dropdown-menu-options')[0].getElementsByTagName('cu-select-option')[num].children[0].click()
+        }, 400);
+      }, 200);
+    }
+  }
+
   /**
   * Handle key events for urgent option
   * @param {keypress event} event
@@ -422,6 +506,39 @@ $(document).ready( function(){
             }, 200);
           }, 200);
         }
+      }, 200);
+    }
+  }
+
+  /**
+  * Handle key events for priority option in openning task
+  * @param {keypress event} event
+  */
+
+  function handlePriorityViewKey(event) {
+    if ((event.key == setPriorityVery || event.key == setPrioritySemi || event.key == setPriorityNot || event.key == setPriorityNormal || event.key == setPriorityEmpty) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      document.getElementsByClassName('task__column task__toolbar')[0].getElementsByTagName('cu-priority-list-dropdown')[0].children[0].children[0].click()
+  
+      setTimeout(() => {
+        let num = event.key == setPriorityVery? 0: (event.key == setPrioritySemi? 1: (event.key == setPriorityNormal?2: (event.key == setPriorityNot? 3 : 4)))
+        let element = document.getElementsByTagName('cu-priority-list')[0].children[0].children[num].children[0];
+        element.click();
+        document.getElementsByTagName('cu-priority-list')[0].parentElement.parentElement.innerHTML = '';
+        document.getElementsByClassName('task__column task__toolbar')[0].getElementsByTagName('cu-priority-list-dropdown')[0].children[0].classList.remove('cu-dropdown_open');
+        document.getElementsByClassName('task__column task__toolbar')[0].getElementsByTagName('cu-priority-list-dropdown')[0].children[0].children[0].setAttribute('aria-expanded', 'false')
+        // document.getElementsByClassName('cdk-overlay-container')[0].click();
+        document.getElementsByClassName('cdk-overlay-container')[0].innerHTML = '';
+        document.getElementsByClassName('task__column task__toolbar')[0].getElementsByTagName('cu-priority-list-dropdown')[0].children[0].children[0].click()
+
+        
+        var event = new MouseEvent('click', {
+          'view': window,
+          'bubbles': true,
+          'cancelable': true
+        });
+      
+        // Dispatch the event on the element
+        document.getElementsByClassName('cdk-overlay-container')[0].dispatchEvent(event);
       }, 200);
     }
   }
