@@ -178,12 +178,12 @@ $(document).ready( function(){
   function onKeyDown(event) {
     if(!isUsePlugin) return;
     if(document.getElementsByTagName('cu-create-task-draft').length > 0) return;  //create ticket modal
-    if(document.getElementsByTagName('cu-manager-view-task').length > 0) {
+    if(document.getElementsByTagName('cu-manager-view-task').length > 0 || document.getElementsByTagName('cu-task-view').length > 0) {
       handleProgressKey(event);
       handleWhenViewKey(event);
       handleImportantViewKey(event);
       handleUrgentViewKey(event);
-      handlePriorityViewKey(event);
+      // handlePriorityViewKey(event);
     } else {
       handleEscapeKey(event);
       handleNavigationKeys(event);
@@ -565,12 +565,18 @@ $(document).ready( function(){
 
   function handleProgressKey(event) {
     if ((event.key == setProgressKey) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
-      document.getElementsByClassName('task-status')[0].children[0].children[0].click();
+      if(document.getElementsByClassName('task-status')?.length > 0) {
+        document.getElementsByClassName('task-status')[0].children[0].children[0].click();
+      }
+      if(document.getElementsByClassName('cu-status-button-badge__body')?.length > 0) {
+        document.getElementsByClassName('cu-status-button-badge__body')[0].children[0].click();
+      }
       setTimeout(() => {
         let progressList = document.getElementsByClassName('status-list__item')
         let idx = getIdxFromViewStatus(progressList, 'in progress')
 
         progressList[idx].click()
+        window.location.reload()
       }, 200)
     }
   }
