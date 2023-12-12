@@ -43,6 +43,7 @@ var longTerm = 't';
 var emptyWhen = 'y';
 var setProgressKey = '5'
 var AUTO_SELECT = false;
+var OPEN_TASK = '=';
 
 function getSelectedTask() {
   return cuTaskRows[currentFocused];
@@ -188,6 +189,7 @@ $(document).ready( function(){
       handleEscapeKey(event);
       handleNavigationKeys(event);
       handleImportantKey(event);
+      handleOpenTaskKey(event)
       handleUrgentKey(event);
       handlePriorityKey(event);
       openDueDate(event);
@@ -460,6 +462,16 @@ $(document).ready( function(){
           }, 200);
         }
       }, 200);
+    }
+  }
+
+  /**
+  * Handle key events for opening task
+  * @param {keypress event} event
+  */
+  function handleOpenTaskKey(event) {
+    if ((event.key == OPEN_TASK) && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !(event.target.hasAttribute("contenteditable") && event.target.getAttribute("contenteditable") === "true")) {
+      toggleMarker.parent().parent().parent().find('.cu-task-row-main__link')[0].click()
     }
   }
 
@@ -743,7 +755,8 @@ const logger = {
         try {
           setProgressKey = request.progress
           AUTO_SELECT = request.auto_select
-          localStorage.setItem('clickup-status-progress', JSON.stringify({progress: setProgressKey, auto_select: AUTO_SELECT}))
+          OPEN_TASK = reqeust.open_task
+          localStorage.setItem('clickup-status-progress', JSON.stringify({progress: setProgressKey, auto_select: AUTO_SELECT, open_task: OPEN_TASK}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 

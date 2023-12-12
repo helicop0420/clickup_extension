@@ -46,6 +46,7 @@ async (request) => {
           const emptyWhen = await getStoreData('clickup-emptywhen')
           const statusProgress = await getStoreData('clickup-status-progress')
           const autoSelect = await getStoreData('clickup-auto-select')
+          const openTask = await getStoreData('clickup-open-task')
 
           if(isUsePlugin != null) sendMessage({ type: messageConstants.SET_USING, value: isUsePlugin });
           if(moveDown && moveUp && selectTask) {
@@ -100,7 +101,8 @@ async (request) => {
             sendMessage({ 
               type: messageConstants.SET_NEW, 
               progress: statusProgress,
-              auto_select: autoSelect
+              auto_select: autoSelect,
+              open_task: openTask
             });
           }
         }

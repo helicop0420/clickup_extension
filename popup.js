@@ -86,6 +86,7 @@ const loadStoredData = async () => {
   const emptyWhen = await getStoreData('clickup-emptywhen')
   const statusProgress = await getStoreData('clickup-status-progress')
   const autoSelect = await getStoreData('clickup-auto-select')
+  const openTask = await getStoreData('clickup-open-task')
 
   logger.log('useplugin', isUsePlugin);
   if(isUsePlugin) {
@@ -173,6 +174,9 @@ const loadStoredData = async () => {
   }
   if(autoSelect) {
     $('#auto_select').prop('checked', autoSelect)
+  }
+  if(openTask) {
+    $('#open_task').val(openTask)
   }
 }
 
@@ -521,6 +525,8 @@ $('#btn_new_save').click(function() {
 })
 $('#btn_new_reset').click(function() {
   $('#status_progress').val('5')
+  $('#auto_select').prop('checked', false)
+  $('#open_task').val('=')
   
   setNewData();
   sendDateMessage();
@@ -529,6 +535,7 @@ $('#btn_new_reset').click(function() {
 function setNewData() {
   setStoreData('clickup-status-progress', $('#status_progress').val().toLowerCase())
   setStoreData('clickup-auto-select', $('#auto_select').is(':checked'))
+  setStoreData('clickup-open-task', $('#open_task').val().toLowerCase())
 }
 
 function sendNewMessage() {
@@ -536,5 +543,6 @@ function sendNewMessage() {
     type: messageConstants.SET_NEW, 
     progress: $('#status_progress').val().toLowerCase(),
     auto_select: $('#auto_select').is(':checked'),
+    open_task: $('#open_task').val().toLowerCase()
   });
 }
