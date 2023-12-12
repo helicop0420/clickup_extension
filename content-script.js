@@ -42,7 +42,7 @@ var nextMonth = 'r';
 var longTerm = 't';
 var emptyWhen = 'y';
 var setProgressKey = '5'
-
+var AUTO_SELECT = false;
 
 function getSelectedTask() {
   return cuTaskRows[currentFocused];
@@ -215,6 +215,14 @@ $(document).ready( function(){
   function handleNavigationKeys(event) {
     if (event.key === moveDownkey || event.key === moveUpKey) {
       navigateTasks(event.key === moveUpKey);
+      if(AUTO_SELECT) {
+        const currentRow = cuTaskRows[currentFocused];
+        if (toggleMarker && !shiftPressed) {
+          toggleMarker.click();
+        }
+        toggleMarker = $(currentRow).find(".cu-task-row-toggle__marker");
+        toggleMarker.click();
+      }
     }
     if (event.key === selectTask) {
       const currentRow = cuTaskRows[currentFocused];
@@ -734,7 +742,8 @@ const logger = {
       } else if(type == messageConstants.SET_NEW) {
         try {
           setProgressKey = request.progress
-          localStorage.setItem('clickup-status-progress', JSON.stringify({progress: setProgressKey}))
+          AUTO_SELECT = request.auto_select
+          localStorage.setItem('clickup-status-progress', JSON.stringify({progress: setProgressKey, auto_select: AUTO_SELECT}))
         } catch (exception) {
           logger.error('Failed initialization', exception);
         } 

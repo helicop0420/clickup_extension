@@ -85,6 +85,7 @@ const loadStoredData = async () => {
   const longTerm = await getStoreData('clickup-longterm')
   const emptyWhen = await getStoreData('clickup-emptywhen')
   const statusProgress = await getStoreData('clickup-status-progress')
+  const autoSelect = await getStoreData('clickup-auto-select')
 
   logger.log('useplugin', isUsePlugin);
   if(isUsePlugin) {
@@ -169,6 +170,9 @@ const loadStoredData = async () => {
   }
   if(statusProgress) {
     $('#status_progress').val(statusProgress)
+  }
+  if(autoSelect) {
+    $('#auto_select').prop('checked', autoSelect)
   }
 }
 
@@ -511,10 +515,6 @@ function sendDateMessage() {
 
 $('#btn_new_save').click(function() {
   $('#new_error').hide()
-  // if($('#new_open').val()=='' || $('#date_close').val()=='') {
-  //   $('#new_error').show()
-  //   return;
-  // }
 
   setNewData()
   sendNewMessage()
@@ -528,11 +528,13 @@ $('#btn_new_reset').click(function() {
 
 function setNewData() {
   setStoreData('clickup-status-progress', $('#status_progress').val().toLowerCase())
+  setStoreData('clickup-auto-select', $('#auto_select').is(':checked'))
 }
 
 function sendNewMessage() {
   sendMessage({ 
     type: messageConstants.SET_NEW, 
     progress: $('#status_progress').val().toLowerCase(),
+    auto_select: $('#auto_select').is(':checked'),
   });
 }

@@ -45,6 +45,7 @@ async (request) => {
           const longTerm = await getStoreData('clickup-longterm')
           const emptyWhen = await getStoreData('clickup-emptywhen')
           const statusProgress = await getStoreData('clickup-status-progress')
+          const autoSelect = await getStoreData('clickup-auto-select')
 
           if(isUsePlugin != null) sendMessage({ type: messageConstants.SET_USING, value: isUsePlugin });
           if(moveDown && moveUp && selectTask) {
@@ -98,7 +99,8 @@ async (request) => {
           if(statusProgress) {
             sendMessage({ 
               type: messageConstants.SET_NEW, 
-              progress: statusProgress
+              progress: statusProgress,
+              auto_select: autoSelect
             });
           }
         }
